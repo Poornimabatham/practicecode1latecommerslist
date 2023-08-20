@@ -17,9 +17,34 @@
 | import './routes/customer'
 |
 */
-
 import Route from '@ioc:Adonis/Core/Route'
-// import "../app/Routes/DepartmentRoute"
-// import  "../app/Routes/DesignationRoute"
 
-import "../app/Routes/ReportRoute/GetPlannerRoute"
+
+import "../app/Routes/EmployeeRoute"
+import "../app/Routes/SignInRoute"
+import  "../app/Routes/DesignationRoute"
+import "../app/Routes/GeofenceRoute"
+import "../app/Routes/GeofenceRoute"
+import "../app/Routes/UserSettingRoute"
+import  "../app/Routes/DepartmentRoute"
+import  "../app/Routes/GetTokenRoute"
+import  '../app/Routes/ShiftRoute'
+import  '../app/Routes/HolidayRoute'
+import '../app/Routes/DailyAttendanceRoute'
+import  '../app/Routes/GetEarlyComingsRoute'
+import  '../app/Routes/getEarlyLeavingsRoutes'
+import "../app/Routes/LateComingRoute"
+import "../app/Routes/Report/GetplannerRoute"
+import "../app/Routes/AttendanceRoute"
+import  "../app/Routes/ClientsRoute"
+import "../app/Routes/getInfoRoute"
+// import Redis from '@ioc:Adonis/Addons/Redis'
+
+// Route.get('/', async () => {
+//     return "Working fine!"
+// })
+
+
+
+import "../app/Routes/ApprovalRegularizationRoute"
+
