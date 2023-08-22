@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var jwt = require("jsonwebtoken");
 var Database_1 = require("@ioc:Adonis/Lucid/Database");
+var AttendanceMaster_1 = require("App/Models/AttendanceMaster");
 var EmployeeMaster_1 = require("App/Models/EmployeeMaster");
 var Organization_1 = require("App/Models/Organization");
 var ShiftMaster_1 = require("App/Models/ShiftMaster");
@@ -68,10 +69,32 @@ var Helper = /** @class */ (function () {
                     case 0: return [4 /*yield*/, Database_1["default"].query()
                             .from("ZoneMaster")
                             .select("name")
-                            .where("id", Database_1["default"].raw("(select TimeZone from Organization where id =" + orgid + "  LIMIT 1)"))];
+                            .where("Id", Database_1["default"].raw("(select TimeZone from Organization where id =" + orgid + "  LIMIT 1)"))];
                     case 1:
                         query1 = _a.sent();
                         return [2 /*return*/, query1[0].name];
+                }
+            });
+        });
+    };
+    Helper.getAdminStatus = function (id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var status, queryResult;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        status = 0;
+                        return [4 /*yield*/, Database_1["default"].query()
+                                .from("UserMaster")
+                                .select("appSuperviserSts")
+                                .where("EmployeeId", id)
+                                .first()];
+                    case 1:
+                        queryResult = _a.sent();
+                        if (queryResult) {
+                            status = queryResult.appSuperviserSts;
+                        }
+                        return [2 /*return*/, status];
                 }
             });
         });
@@ -140,24 +163,46 @@ var Helper = /** @class */ (function () {
             });
         });
     };
-    Helper.getAdminStatus = function (id) {
+    Helper.FirstLettercapital = function (sentence) {
+        var words = sentence.split(" ");
+        var capitalizedWords = words.map(function (word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        });
+        return capitalizedWords.join(" ");
+    };
+    Helper.getCountryIdByOrg1 = function (orgid) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, queryResult;
+            var getCountryId, CountryId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        status = 0;
-                        return [4 /*yield*/, Database_1["default"].query()
-                                .from("UserMaster")
-                                .select("appSuperviserSts")
-                                .where("EmployeeId", id)
-                                .first()];
+                    case 0: return [4 /*yield*/, Database_1["default"].from("Organization")
+                            .select("Country")
+                            .where("Id", orgid)];
                     case 1:
-                        queryResult = _a.sent();
-                        if (queryResult) {
-                            status = queryResult.appSuperviserSts;
+                        getCountryId = _a.sent();
+                        if (getCountryId.length > 0) {
+                            CountryId = getCountryId[0].Country;
+                            return [2 /*return*/, CountryId];
                         }
-                        return [2 /*return*/, status];
+                        return [2 /*return*/, 0];
+                }
+            });
+        });
+    };
+    Helper.getOrgId = function (Id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var OrgId, getOrgIdQuery;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Database_1["default"].from("EmployeeMaster")
+                            .select("OrganizationId")
+                            .where("Id", Id)];
+                    case 1:
+                        getOrgIdQuery = _a.sent();
+                        if (getOrgIdQuery.length > 0) {
+                            OrgId = getOrgIdQuery[0].OrganizationId;
+                        }
+                        return [2 /*return*/, OrgId];
                 }
             });
         });
@@ -326,6 +371,30 @@ var Helper = /** @class */ (function () {
             });
         });
     };
+    Helper.getName = function (tablename, getcol, wherecol, id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var name, query, count;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        name = "";
+                        return [4 /*yield*/, Database_1["default"].query()
+                                .from(tablename)
+                                .select(getcol)
+                                .where(wherecol, id)];
+                    case 1:
+                        query = _a.sent();
+                        count = query.length;
+                        if (count > 0) {
+                            query.forEach(function (row) {
+                                name = row[getcol];
+                            });
+                        }
+                        return [2 /*return*/, name];
+                }
+            });
+        });
+    };
     Helper.getShiftType = function (shiftId) {
         return __awaiter(this, void 0, void 0, function () {
             var defaultshifttype, allDataOfShiftMaster;
@@ -456,6 +525,36 @@ var Helper = /** @class */ (function () {
             });
         });
     };
+    Helper.getShiftMultipleTimeStatus = function (userId, today, shiftId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var attendanceRecord, shiftRecord;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, AttendanceMaster_1["default"].query()
+                            .where("EmployeeId", userId)
+                            .where("AttendanceDate", today)
+                            .whereNot("TimeIn", "00:00:00")
+                            .select("multitime_sts")
+                            .first()];
+                    case 1:
+                        attendanceRecord = _a.sent();
+                        if (!(attendanceRecord && attendanceRecord.multitime_sts)) return [3 /*break*/, 2];
+                        return [2 /*return*/, attendanceRecord.multitime_sts];
+                    case 2: return [4 /*yield*/, ShiftMaster_1["default"].query()
+                            .where("Id", shiftId)
+                            .select("MultipletimeStatus")
+                            .first()];
+                    case 3:
+                        shiftRecord = _a.sent();
+                        if (shiftRecord && shiftRecord.MultipletimeStatus) {
+                            return [2 /*return*/, shiftRecord.MultipletimeStatus];
+                        }
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, 0];
+                }
+            });
+        });
+    };
     Helper.getOvertimeForRegularization = function (timein, timeout, id) {
         return __awaiter(this, void 0, void 0, function () {
             var name, selectShiftMasterData, _i, selectShiftMasterData_1, row, stime1, stime2, time1, time2, totaltime, stotaltime, overtime, overtimeInMinutes;
@@ -500,6 +599,24 @@ var Helper = /** @class */ (function () {
                 }
             });
         });
+    };
+    Helper.calculateOvertime = function (startTime, endTime) {
+        var _a = startTime
+            .split(":")
+            .map(Number), startHours = _a[0], startMinutes = _a[1], startSeconds = _a[2];
+        var _b = endTime.split(":").map(Number), endHours = _b[0], endMinutes = _b[1], endSeconds = _b[2];
+        var totalStartSeconds = startHours * 3600 + startMinutes * 60 + startSeconds;
+        var totalEndSeconds = endHours * 3600 + endMinutes * 60 + endSeconds;
+        var timeDiffInSeconds = totalEndSeconds - totalStartSeconds;
+        // if (timeDiffInSeconds < 0) {
+        //   timeDiffInSeconds += 24 * 3600; // Assuming time is within 24 hours range
+        // }
+        var hours = Math.floor(Math.abs(timeDiffInSeconds) / 3600) *
+            (timeDiffInSeconds < 0 ? 1 : 1);
+        var remainingSeconds = Math.abs(timeDiffInSeconds) % 3600;
+        var minutes = Math.floor(remainingSeconds / 60) * (timeDiffInSeconds < 0 ? 1 : 1);
+        var seconds = Math.floor(remainingSeconds % 60) * (timeDiffInSeconds < 0 ? 1 : 1);
+        return { hours: hours, minutes: minutes, seconds: seconds };
     };
     return Helper;
 }());

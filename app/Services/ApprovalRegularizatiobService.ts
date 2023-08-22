@@ -11,7 +11,7 @@ export default class GetapprovalRegularService {
     var successMsg = "";
     var Msg1 = "Regularization could not be rejected.";
     var Msg = "Regularization could not be approved.";
-    var status: boolean = false;
+    var status = false;
     var count11: number = 0;
     var con: number = 0;
     var regularizetimein = "00:00:00";
@@ -26,8 +26,9 @@ export default class GetapprovalRegularService {
       ActivityBy = 1;
       module = "ubiattendance APP";
     }
-    if (data.attendance_id != undefined && data.attendance_id != 0) { 
-      try{
+
+    if (data.attendance_id != "" && data.attendance_id != 0) {
+      
         const selectAttendanceMasterList: any = await Database.from(
           "AttendanceMaster"
         )
@@ -51,7 +52,6 @@ export default class GetapprovalRegularService {
               var timeout = val.TimeOut;
               regularizetimein = val.RegularizeTimeIn;
               var attendancedate = val.AttendanceDate;
-
               var orginaltimein = val.TimeIn;
               var empid = val.EmployeeId;
               const selectEmployeeMasterList = await Database.from(
@@ -70,18 +70,7 @@ export default class GetapprovalRegularService {
                 )
                 .where("Id", empid)
                 .orWhere("organizationId", data.orgid)
-                .limit(4);console.log(selectEmployeeMasterList)
-
-if(selectEmployeeMasterList.length>0){
-  var empname=selectEmployeeMasterList[0].name;
-
-  var shiftid=selectEmployeeMasterList[0].Shift;
-							var deptid=selectEmployeeMasterList[0].Department;
-							var desigid=selectEmployeeMasterList[0].Designation;
-							var areaid=selectEmployeeMasterList[0].area_assigned;
-
-}
-console.log(shiftid,deptid,desigid,areaid)
+                .limit(4);
 
               if (data.approverresult == 2) {
                 console.log("jjl")
@@ -91,28 +80,23 @@ console.log(shiftid,deptid,desigid,areaid)
                   .select("*")
                   .where("ApproverId", "=", 0)
                   .andWhere("Id", data.attendance_id);
-                console.log(selectAttendanceMasterList)
+                // console.log(selectAttendaneMasterList)
                 var hrid = data.uid;
-                console.log(hrid)
+                // console.log(hrid)
 
                 if (selectAttendanceMasterList.length > 0) {
                   var shiftId = selectAttendanceMasterList[0].ShiftId;
-                  // console.log('shiftId',shiftId)
                   if (regularizetimein == timein) {
-                    console.log("=");
-                    // console.log('regularizetimein',regularizetimein,'timein',timein)
-
                     totalovertime = await Helper.getOvertimeForRegularization(
                       timein,
                       newtimeout,
                       shiftId
                     );
-                    console.log('totalovertime',totalovertime)
+                    // console.log('totalovertime',totalovertime)
                     var mdate = DateTime.local().toFormat(
                       "yyyy-MM-dd HH:mm:ss"
                     );
-                    console.log("EXIT")
-                    const updateAttendanceMaster: any = await Database.query()
+                    var updateAttendanceMaster: any = await Database.query()
                       .from("AttendanceMaster")
                       .where("Id", data.attendance_id)
                       .andWhere("RegularizeSts", 3)
@@ -125,7 +109,7 @@ console.log(shiftid,deptid,desigid,areaid)
                         LastModifiedById: hrid,
                       });
                     count = updateAttendanceMaster;
-                    console.log(count)
+                    // console.log(count)
                   } else {
                     console.log("else")
                     var affected_rows = 0;
@@ -141,16 +125,15 @@ console.log(shiftid,deptid,desigid,areaid)
                       .where("Id", data.attendance_id)
                       .andWhere("RegularizeSts", 3);
                     affected_rows = selectAttendaneMasterList2.length;
-                    console.log('affected_rows',affected_rows);
+                    // console.log('affected_rows',affected_rows);
                     var attsts;
                     if (affected_rows == 1) {
-                      attsts = selectAttendaneMasterList2[0].AttendanceStatus;
-                      console.log("st",attsts) // Assuming the result is an array of objects
+                      attsts = selectAttendaneMasterList2[0].AttendanceStatus; // Assuming the result is an array of objects
                       if (attsts == 2) {
                         attsts = 1;
                       }
                       console.log("attsts", attsts);
-                     const updateAttendanceMaster:any= await Database.query()
+                      updateAttendanceMaster = await Database.query()
                         .from("AttendanceMaster")
                         .where("Id", data.attendance_id)
                         .andWhere("RegularizeSts", 3)
@@ -171,10 +154,9 @@ console.log(shiftid,deptid,desigid,areaid)
                   }
 
                   if (count >= 1) {
-                    console.log("meg")
-                    var msg = `Regularization request of <b>${empname}</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
+                    var msg = `Regularization request of <b>$empname}</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
 
-                  const insertActivityHistoryMaster = await Database.insertQuery()
+                    updateAttendanceMaster = await Database.insertQuery()
                       .table("ActivityHistoryMaster")
                       .insert({
                         LastModifiedById: data.uid,
@@ -183,15 +165,12 @@ console.log(shiftid,deptid,desigid,areaid)
                         OrganizationId: data.orgid,
                         ActivityBy: ActivityBy,
                       });
-                      console.log(module)
-                      console.log("p")
                     var title = `Alert:Your Regularization Request is approved`;
                     var emailmsg = `Dear ${empname}<br><br> This is to inform you that your regularization
                    request has been approved.<br>Remarks :  .${data.comment}`;
                   }
-                }
-                 else {
-                  const updateRegularizationApproval: any = await Database.from(
+                } else {
+                  var updateRegularizationApproval: any = await Database.from(
                     "RegularizationApproval"
                   )
                     .where(" attendanceId", data.attendance_id)
@@ -207,8 +186,8 @@ console.log(shiftid,deptid,desigid,areaid)
                   count = updateRegularizationApproval;
                   hrid = data.uid;
                   if (count >= 1) {
-                    msg = `Regularization request of <b>${empname}</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
-                   const insertActivityHistoryMaster = await Database.insertQuery()
+                    msg = `Regularization request of <b>$empname</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
+                    selectAttendaneMasterList2 = await Database.insertQuery()
                       .table("ActivityHistoryMaster")
                       .insert({
                         LastModifiedById: data.uid,
@@ -217,7 +196,7 @@ console.log(shiftid,deptid,desigid,areaid)
                         OrganizationId: data.orgid,
                         ActivityBy: ActivityBy,
                       });
-                    const selectRegulariationList = await Database.from("RegularizationApproval")
+                    var sql12 = await Database.from("RegularizationApproval")
                       .select("ApproverId")
                       .where(" attendanceId", data.attendance_id)
                       .andWhere("ApproverId", data.uid)
@@ -244,7 +223,7 @@ console.log(shiftid,deptid,desigid,areaid)
                       if (regularizetimein == timein) {
                         // $totalovertime=$this->getOvertimeForRegularization($timein,$newtimeout,$shiftid);
 
-                        const  updateAttendanceMaster = await Database.query()
+                        updateAttendanceMaster = await Database.query()
                           .from("AttendanceMaster")
                           .where("Id", data.attendance_id)
                           .andWhere("RegularizeSts", 3)
@@ -261,7 +240,7 @@ console.log(shiftid,deptid,desigid,areaid)
                         count = updateAttendanceMaster.length;
                       } else {
                         affected_rows = 0;
-                        var selectAttendaneMasterList2: any = await Database.from("AttendanceMaster")
+                        var sql: any = await Database.from("AttendanceMaster")
                           .select("*")
                           .where("Id", data.attendance_id)
                           .andWhere("RegularizeSts", 3);
@@ -273,7 +252,7 @@ console.log(shiftid,deptid,desigid,areaid)
                         if (attsts == 2) {
                           attsts = 1;
                         }
-                       const updateAttendanceMaster = await Database.from(
+                        updateAttendanceMaster = await Database.from(
                           "AttendanceMaster"
                         )
                           .where("Id", data.attendanceId)
@@ -290,8 +269,8 @@ console.log(shiftid,deptid,desigid,areaid)
                     }
 
                     if (count >= 1) {
-                      msg = `Regularization request of <b>${empname}</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
-                     const insertActivityHistoryMaster = await Database.insertQuery()
+                      msg = `Regularization request of <b>$empname</b> has been approved </br> Attendance Date: <b>${attendancedate}</b>`;
+                      updateAttendanceMaster = await Database.insertQuery()
                         .table("ActivityHistoryMaster")
                         .insert({
                           LastModifiedById: data.uid,
@@ -310,25 +289,25 @@ console.log(shiftid,deptid,desigid,areaid)
               }
 
               if (data.approverresult == 1) {
-               const selectAttendanceMasterList:any = Database.from("AttendanceMaster")
+                selectAttendanceMasterList = Database.from("AttendanceMaster")
                   .where("ApproverId", "!=", 0)
                   .andWhere("Id", data.attendance_id)
                   .select("Id");
 
                 if (selectAttendanceMasterList.length > 0) {
-                 const updateAttendanceMaster = await Database.from(
+                  updateAttendanceMaster = await Database.from(
                     "AttendanceMaster"
                   )
                     .where("Id", data.attendanceId)
-                    .where("RegularizeSts", 3)
+                    .where("RegularizeSts", 2)
                     .update({
                       RegularizeSts: data.approverResult,
                       RegularizeApprovalDate: mdate,
                       RegularizeApproverRemarks: data.comment,
                     });
                   if (count >= 1) {
-                    msg = `Regularization request of <b>${empname}</b> has been rejected</br> Attendance Date: <b>${attendancedate}</b>`;
-                  const  insertActivityHistoryMaster= await Database.insertQuery()
+                    msg = `Regularization request of <b>$empname</b> has been rejected</br> Attendance Date: <b>${attendancedate}</b>`;
+                    selectAttendaneMasterList2 = await Database.insertQuery()
                       .table("ActivityHistoryMaster")
                       .insert({
                         LastModifiedById: data.uid,
@@ -359,7 +338,7 @@ console.log(shiftid,deptid,desigid,areaid)
                     });
                   count11 = updateRegularizationApproval.length;
                   if (count11 >= 1) {
-                  const updateAttendanceMaster =  await Database.from("AttendanceMaster")
+                    await Database.from("AttendanceMaster")
                       .where("Id", data.attendanceId)
                       .where("RegularizeSts", 3)
                       .update({
@@ -371,7 +350,7 @@ console.log(shiftid,deptid,desigid,areaid)
                     if (count >= 1) {
                       msg = `Regularization request of <b>${empname}</b> has been rejected | 
     AttendanceDate: <b>${attendancedate}</b>`;
-                      const insertActivityHistoryMaster = await Database.insertQuery()
+                      selectAttendaneMasterList2 = await Database.insertQuery()
                         .table("ActivityHistoryMaster")
                         .insert({
                           LastModifiedById: data.uid,
@@ -391,7 +370,9 @@ console.log(shiftid,deptid,desigid,areaid)
             })
           );
         }
-      
+      } catch (err) {
+        console.log(err);
+      }
     }
   catch(err){
 console.log(err)
@@ -400,7 +381,6 @@ console.log(err)
 
     if (count >= 1) {
       status = true;
-      console.log("tr")
       if (data.approverresult == 2) {
         console.log("hj")
         successMsg = `Regularization has been Approved`;
@@ -425,11 +405,3 @@ console.log(err)
     }
   }
 }
-
-
-
-
-
-
-
-
