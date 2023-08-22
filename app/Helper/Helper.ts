@@ -430,4 +430,13 @@ try{
 return name
 
 }
+
+
+public static async getOrgName(id:number){
+  console.log(id)
+const queryResult = await Database.from("Organization").where("Id",id).select("Name")
+if (queryResult.length > 0) {
+  return queryResult[0].Name;
+}
+}
 }
