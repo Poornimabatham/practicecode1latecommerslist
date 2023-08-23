@@ -45,6 +45,7 @@ import "../app/Routes/getCDateAttnDeptWiseRoutes"
 import "../app/Routes/getDataToApplyRegRoute"
 import "../app/Routes/MyAddonUserInfoRoute"
 import "../app/Routes/checkuseremailRoute"
+import "../app/Routes/UsershiftplannerRoute"
 // Route.get('/', async () => {
 //     return "Working fine!"
 // })
