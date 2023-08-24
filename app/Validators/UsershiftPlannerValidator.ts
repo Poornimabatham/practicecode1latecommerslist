@@ -21,4 +21,15 @@ export default class UsershiftplannerValidator extends BaseValidator {
       deviceid:schema.string([rules.alphaNum()]),
     }),
   };
+
+
+  
+  static ResetPasswordLinkchema = {
+    schema: schema.create({
+        una:schema.string([
+            rules.email()
+          ])
+  
+    })
+    }
 }
