@@ -66,7 +66,7 @@ export default class GetDataToRegService {
         "TimeOut"
       )
       .where("OrganizationId", data.orgid)
-      .andWhereNot("Is_Delete", 1)
+      .andWhere("Is_Delete","<>", 1)
       .andWhere("device", "Auto Time Out")
       .andWhere((query) => {
         query
@@ -98,7 +98,8 @@ export default class GetDataToRegService {
       .andWhereRaw(`YEAR(AttendanceDate) = YEAR('${currentMonth}')`)
       .andWhereNot("AttendanceDate", Database.raw("CURDATE()") )
       .andWhereIn("RegularizeSts", [0, 1])
-      .orderBy("AttendanceDate", "desc").limit(10)
+      .orderBy("AttendanceDate", "desc").debug(true).toSQL().toNative()
+      return selectAttendancemasterList
     const attendanceData = await selectAttendancemasterList;
     var attendancearr: any = [];
     attendanceData.forEach((row) => {
