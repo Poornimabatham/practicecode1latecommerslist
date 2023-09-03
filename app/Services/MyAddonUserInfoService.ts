@@ -8,11 +8,13 @@ export default class MyAddonUserInfoService {
     var result: any = {};
 
     const UserMaster = await Database.from("UserMaster")
+      .select("*")
       .where("EmployeeId", Empid)
       .where("OrganizationId", orgidId);
 
     UserMaster.forEach((row) => {
       result.qrKioskPin = row.kioskPin;
+  
     });
     return result;
   }

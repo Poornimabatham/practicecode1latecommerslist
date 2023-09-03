@@ -40,8 +40,24 @@ require("../app/Routes/ClientsRoute");
 require("../app/Routes/getInfoRoute");
 require("../app/Routes/getEmpdataDepartmentWiseNewRoute");
 require("../app/Routes/getCDateAttnDeptWiseRoutes");
+require("../app/Routes/UsershiftplannerRoute");
+require("../app/Routes/UserSettingRoute");
 require("../app/Routes/getDataToApplyRegRoute");
 require("../app/Routes/MyAddonUserInfoRoute");
+require("../app/Routes/StoreRatingRoute");
+require("../app/Routes/GetLastTimeOutRoute");
+require("../app/Routes/changePasswordOTPRoute");
+require("../app/Routes/SelectCountryCodeRoute");
+require("../app/Routes/ResetPasswordLinkRoute");
+require("../app/Routes/CheckUserEmailRoute");
+require("../app/Routes/getAppDetailRoutes");
+require("../app/Routes/getListofLeaveRoute");
+require("../app/Routes/getInterimAttendancesRoute");
+require("../app/Routes/GetappVersionRoute");
+require("../app/Routes/TempAssignClientRoute");
+require("../app/Routes/Report/GetAttendanceEmployeewise");
+require("../app/Routes/getUserMobileRoute");
+require("../app/Routes/getProfileImageRoute");
 // Route.get('/', async () => {
 //     return "Working fine!"
 // })
